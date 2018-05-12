@@ -1,0 +1,27 @@
+Query Text,Doc ID,Rating
+SCOOS,0,1
+SLOOS,0,1
+BOP,0,1
+Balance of Payments,0,1
+Advanced Search AnyField BOP,0,1
+DFAST,0,1
+Dodd-Frank Act Stress Test,0,1
+FHA,0,1
+Federal Housing Administration,0,1
+"Federal Housing Administration",0,1
+ATM,0,1
+ATMs,0,1
+Automated Teller Machine,0,1
+BHC,0,1
+Bank Holding Company,0,1
+"Bank Holding Company",0,1
+(Keyword:BHC) OR (Keyword:"Bank Holding Company"),0,1
+NGO,0,1
+"Non Government Organization",0,1
+Non Government Organization,0,1
+FASB,0,1
+Financial Accounting Standards Board,0,1
+"Financial Accounting Standards Board",0,1
+AML,0,1
+Ant-Money Laundering,0,1
+Adjustible Mortgage Loan,0,1

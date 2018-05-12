@@ -1,0 +1,18 @@
+Query Text,Doc ID,Rating
+price,0,1
+pricing,0,1
+prices,0,1
+priced,0,1
+price OR pricing OR prices OR priced,0,1
+insurance,0,1
+insured,0,1
+insurance OR insured,0,1
+issuance,0,1
+issued,0,1
+issue,0,1
+issuer,0,1
+issues,0,1
+issuance OR issued OR issue OR issuer OR issues,0,1
+mortgage price,0,1
+mortgage prices,0,1
+mortgage pricing,0,1

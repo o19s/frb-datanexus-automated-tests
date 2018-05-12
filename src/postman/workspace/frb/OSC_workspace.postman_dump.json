@@ -1,0 +1,1149 @@
+{
+	"version": 1,
+	"collections": [
+		{
+			"id": "262a91f7-4853-40d7-9486-31f9788f41c1",
+			"name": "T02 (Data Driven) - Search by keyword (Single term) ",
+			"description": "T02 test plan.",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "solr_admin"
+					},
+					{
+						"key": "password",
+						"value": "DataNexus_S0lr_Admin!"
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "303b0779-3611-4436-8345-50151de68372",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7cb5f99f-7c36-412d-8e91-4d0b543c5ec3",
+						"type": "text/javascript",
+						"exec": [
+							"eval(pm.globals.get('tester_status'));"
+						]
+					}
+				}
+			],
+			"variables": [],
+			"order": [
+				"1c1ba30a-b5a3-4f6d-b7ad-75d6ec9c2373"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "1c1ba30a-b5a3-4f6d-b7ad-75d6ec9c2373",
+					"name": "T02",
+					"url": "http://{{host}}:{{port}}/solr/{{core}}/{{search_handler}}?q={{search}}&wt=json&facet=true&facet.field={{facet}}",
+					"description": "",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "{{search}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "{{facet}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1065bd66-ab98-485b-9715-f8db62ab7839",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.globals.get('tester_num_found'));",
+									"const expected_num_found = data.count;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.globals.get('tester_facet'));",
+									"tester_facet(data.facet, data.facet_value);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.globals.get('tester_num_found'));\nconst expected_num_found = data.count;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.globals.get('tester_facet'));\ntester_facet(data.facet, data.facet_value);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "262a91f7-4853-40d7-9486-31f9788f41c1",
+					"headers": "",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "4c13e888-23c9-4241-92f9-3fb90ab7c94b",
+			"name": "T02 - Search by keyword (Single term)",
+			"description": "T02 test plan.",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "solr_admin"
+					},
+					{
+						"key": "password",
+						"value": "DataNexus_S0lr_Admin!"
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "303b0779-3611-4436-8345-50151de68372",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7cb5f99f-7c36-412d-8e91-4d0b543c5ec3",
+						"type": "text/javascript",
+						"exec": [
+							"// Test that the search succeeded.",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"variables": [
+				{
+					"key": "tester_num_found",
+					"value": "function tester_num_found(expected_num_found){\n    pm.test(\"Number of matches = \"+expected_num_found, function () {\n        console.log('NumFound=' + pm.response.json().response.numFound);\n        pm.expect(pm.response.json().response.numFound).to.equal(expected_num_found);\n    });\n}",
+					"description": "",
+					"type": "text",
+					"disabled": false
+				},
+				{
+					"key": "tester_facet",
+					"value": "function tester_facet(facet_field, facet_value_expected, facet_value_count_expected) {\n    let facet_value_found = false;\n    let facet_value_count_found;\n    \n    let test_name = \"Facet \" + facet_field + \" with value \" + facet_value_expected;\n    if (facet_value_count_expected !== undefined) {\n        test_name = test_name + ' (' + facet_value_count_expected + ')';\n    }\n    \n    pm.test(test_name, function () {\n        let facet = pm.response.json().facet_counts.facet_fields[facet_field];\n        pm.expect(facet.length-1).to.be.above(2);\n        for (let i = 0; i < facet.length-1; i++){\n            //console.log(facet[i] + ':' + facet[i+1]);\n            if (facet[i] == facet_value_expected) {\n                facet_value_found = true;\n                facet_value_count_found = facet[i+1];\n                console.log(facet[i] + ':' + facet[i+1]);\n            }\n        }\n        \n        pm.expect(facet_value_found).to.equal(true);\n        \n        if (facet_value_count_expected !== undefined) {\n            pm.expect(facet_value_count_found).to.equal(facet_value_count_expected);\n        }\n    });\n}",
+					"description": "",
+					"type": "text",
+					"disabled": false
+				}
+			],
+			"order": [
+				"23a86800-49b8-4d8f-b14e-bfdd2e7da947",
+				"6ad9fed5-fd90-4fb9-a567-9d7bac6623ea",
+				"b2714db8-4bb3-4473-ac7a-f0d1cc98bbc9"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "23a86800-49b8-4d8f-b14e-bfdd2e7da947",
+					"name": "T02 - Automotive",
+					"url": "http://m1-datanexus03d:8983/solr/DataNexus_2018_03_28/DataNexusSearch?q=automotive&wt=json&facet=true&facet.field=RecordType_s",
+					"description": "Test of stemming",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "automotive",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "RecordType_s",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4fcf970b-1950-4139-8965-f5d3ed404229",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.variables.get('tester_num_found'));",
+									"const expected_num_found = 10;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.variables.get('tester_facet'));",
+									"tester_facet('RecordType_s', 'Acquired', 10);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.variables.get('tester_num_found'));\nconst expected_num_found = 10;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.variables.get('tester_facet'));\ntester_facet('RecordType_s', 'Acquired', 10);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "4c13e888-23c9-4241-92f9-3fb90ab7c94b",
+					"headers": "",
+					"pathVariables": {}
+				},
+				{
+					"id": "6ad9fed5-fd90-4fb9-a567-9d7bac6623ea",
+					"name": "T02 - cds",
+					"url": "http://m1-datanexus03d:8983/solr/DataNexus_2018_03_28/DataNexusSearch?q=cds&wt=json&facet=true&facet.field=RecordType_s",
+					"description": "Test of stemming",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "cds",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "RecordType_s",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bd1f028c-0b64-4a4f-81b1-a2b62ccff3a9",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.variables.get('tester_num_found'));",
+									"const expected_num_found = 50;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.variables.get('tester_facet'));",
+									"tester_facet('RecordType_s', 'Acquired', undefined);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.variables.get('tester_num_found'));\nconst expected_num_found = 50;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.variables.get('tester_facet'));\ntester_facet('RecordType_s', 'Acquired', undefined);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "4c13e888-23c9-4241-92f9-3fb90ab7c94b",
+					"headers": "",
+					"pathVariables": {}
+				},
+				{
+					"id": "b2714db8-4bb3-4473-ac7a-f0d1cc98bbc9",
+					"name": "T02 - consumer",
+					"url": "http://m1-datanexus03d:8983/solr/DataNexus_2018_03_28/DataNexusSearch?q=consumer&wt=json&facet=true&facet.field=RecordType_s",
+					"description": "Test of stemming",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "consumer",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "RecordType_s",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cd35925-129d-45a3-aa84-5f9aa4f2c230",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.variables.get('tester_num_found'));",
+									"const expected_num_found = 407;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.variables.get('tester_facet'));",
+									"tester_facet('RecordType_s', 'Acquired', undefined);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.variables.get('tester_num_found'));\nconst expected_num_found = 407;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.variables.get('tester_facet'));\ntester_facet('RecordType_s', 'Acquired', undefined);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "4c13e888-23c9-4241-92f9-3fb90ab7c94b",
+					"headers": "",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "5a47c6f8-2ae3-424a-9b01-559b406534e2",
+			"name": "DEV Security -BAK",
+			"description": "",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "DataNexus_S0lr_Admin!"
+					},
+					{
+						"key": "username",
+						"value": "solr_admin"
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bacdf1a5-61a8-46e2-80da-aaa986545afd",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cdc4c931-56d0-45b7-b0c1-26a6271a3990",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"variables": [],
+			"order": [
+				"5e4abc1e-7a01-4be9-b441-88853945d8bc",
+				"64d4d584-61fd-4699-8a7b-302566373520",
+				"d7740c72-c939-4afb-8544-62ea0b61c8ed",
+				"f922c444-1b3e-4b9c-9a82-d1661fab5e41"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "5e4abc1e-7a01-4be9-b441-88853945d8bc",
+					"name": "Block unknown Copy",
+					"url": "http://m1-datanexus03d:8983/solr/admin/authentication",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "5a47c6f8-2ae3-424a-9b01-559b406534e2",
+					"rawModeData": "{\r\n \"set-property\": {\"blockUnknown\":true}}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "64d4d584-61fd-4699-8a7b-302566373520",
+					"name": "Add auth for admin and reader Copy",
+					"url": "http://m1-datanexus03d:8983/solr/admin/authentication",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "5a47c6f8-2ae3-424a-9b01-559b406534e2",
+					"rawModeData": "{\r\n  \"set-user\": {\"solr_admin\" : \"DataNexus_S0lr_Admin!\" ,\r\n               \"solr_reader\":\"DataNexus_S0lr_Reader!\"}}",
+					"headers": "",
+					"pathVariables": {}
+				},
+				{
+					"id": "d7740c72-c939-4afb-8544-62ea0b61c8ed",
+					"name": "Add permissions for admin Copy",
+					"url": "http://m1-datanexus03d:8983/solr/admin/authorization",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "5a47c6f8-2ae3-424a-9b01-559b406534e2",
+					"rawModeData": "{\r\n  \"set-permission\": {\"name\": \"all\", \"role\":\"admin\"},\r\n  \"set-permission\": {\"name\": \"read\", \"role\":\"readonly\"},\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "f922c444-1b3e-4b9c-9a82-d1661fab5e41",
+					"name": "Set users to roles Copy",
+					"url": "http://m1-datanexus03d:8983/solr/admin/authorization",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "5a47c6f8-2ae3-424a-9b01-559b406534e2",
+					"rawModeData": "{\r\n   \"set-user-role\" : {\"solr_admin\": [\"admin\",\"readonly\"],\r\n                      \"solr_reader\": \"readonly\"}\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "83df512e-0091-464a-ba81-49ada74093a7",
+			"name": "T40 (Data Driven) - Stemming",
+			"description": "T03 test plan.",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "solr_admin"
+					},
+					{
+						"key": "password",
+						"value": "DataNexus_S0lr_Admin!"
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "303b0779-3611-4436-8345-50151de68372",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7cb5f99f-7c36-412d-8e91-4d0b543c5ec3",
+						"type": "text/javascript",
+						"exec": [
+							"eval(pm.globals.get('tester_status'));"
+						]
+					}
+				}
+			],
+			"variables": [],
+			"order": [
+				"160e6f8c-0501-46f4-b258-458982382a86"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "160e6f8c-0501-46f4-b258-458982382a86",
+					"name": "T40",
+					"url": "http://{{host}}:{{port}}/solr/{{core}}/{{search_handler}}?q={{search}}&wt=json&facet=true&facet.field={{facet}}",
+					"description": "",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "{{search}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "{{facet}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1065bd66-ab98-485b-9715-f8db62ab7839",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.globals.get('tester_num_found'));",
+									"const expected_num_found = data.count;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.globals.get('tester_facet'));",
+									"tester_facet(data.facet, data.facet_value);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.globals.get('tester_num_found'));\nconst expected_num_found = data.count;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.globals.get('tester_facet'));\ntester_facet(data.facet, data.facet_value);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "83df512e-0091-464a-ba81-49ada74093a7",
+					"headers": "",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "9237b799-564f-4681-af1c-77327a7b2fb7",
+			"name": "T03 (Data Driven) - Search by keyword (Multi term)",
+			"description": "T03 test plan.",
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "username",
+						"value": "solr_admin"
+					},
+					{
+						"key": "password",
+						"value": "DataNexus_S0lr_Admin!"
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "303b0779-3611-4436-8345-50151de68372",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7cb5f99f-7c36-412d-8e91-4d0b543c5ec3",
+						"type": "text/javascript",
+						"exec": [
+							"eval(pm.globals.get('tester_status'));"
+						]
+					}
+				}
+			],
+			"variables": [],
+			"order": [
+				"5612cc6b-e241-4437-9383-8cc7588a3e6d"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "5612cc6b-e241-4437-9383-8cc7588a3e6d",
+					"name": "T03",
+					"url": "http://{{host}}:{{port}}/solr/{{core}}/{{search_handler}}?q={{search}}&wt=json&facet=true&facet.field={{facet}}",
+					"description": "",
+					"data": null,
+					"dataMode": "params",
+					"headerData": [],
+					"method": "GET",
+					"pathVariableData": [],
+					"queryParams": [
+						{
+							"key": "q",
+							"value": "{{search}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "wt",
+							"value": "json",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet",
+							"value": "true",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						},
+						{
+							"key": "facet.field",
+							"value": "{{facet}}",
+							"equals": true,
+							"description": "",
+							"enabled": true
+						}
+					],
+					"auth": null,
+					"events": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1065bd66-ab98-485b-9715-f8db62ab7839",
+								"type": "text/javascript",
+								"exec": [
+									"// Test: Number of results",
+									"eval(pm.globals.get('tester_num_found'));",
+									"const expected_num_found = data.count;",
+									"tester_num_found(expected_num_found);",
+									"",
+									"// Test: Facet",
+									"eval(pm.globals.get('tester_facet'));",
+									"tester_facet(data.facet, data.facet_value);"
+								]
+							}
+						}
+					],
+					"folder": null,
+					"preRequestScript": null,
+					"tests": "// Test: Number of results\neval(pm.globals.get('tester_num_found'));\nconst expected_num_found = data.count;\ntester_num_found(expected_num_found);\n\n// Test: Facet\neval(pm.globals.get('tester_facet'));\ntester_facet(data.facet, data.facet_value);",
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "9237b799-564f-4681-af1c-77327a7b2fb7",
+					"headers": "",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "c939587c-76ea-412e-9352-9613cedd6eca",
+			"name": "LOCAL Security",
+			"description": "",
+			"auth": null,
+			"events": null,
+			"variables": [],
+			"order": [
+				"7cff6d2c-59d0-4a3b-af66-a20e954d020a",
+				"abf632a6-e73f-4ed2-9de9-bc3b13771def",
+				"cd6d4073-faa6-47aa-b3a8-e64042c3530d",
+				"d400d147-697a-4222-9900-42943cc8d876",
+				"eaab4afb-69d7-49ab-8b11-06789f18828f"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "7cff6d2c-59d0-4a3b-af66-a20e954d020a",
+					"name": "Set users to roles",
+					"url": "http://localhost:8983/solr/admin/authorization",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "c939587c-76ea-412e-9352-9613cedd6eca",
+					"rawModeData": "{\r\n   \"set-user-role\" : {\"solr_admin\": \"admin\",\r\n                      \"solr_reader\": \"readonly\"}\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "abf632a6-e73f-4ed2-9de9-bc3b13771def",
+					"name": "Add permissions for admin",
+					"url": "http://localhost:8983/solr/admin/authorization",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "c939587c-76ea-412e-9352-9613cedd6eca",
+					"rawModeData": "{\r\n  \"set-permission\": {\"name\": \"all\", \"role\":\"admin\"},\r\n  \"set-permission\": {\"name\": \"read\", \"role\":\"readonly\"},\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "cd6d4073-faa6-47aa-b3a8-e64042c3530d",
+					"name": "Add auth for reader",
+					"url": "http://localhost:8983/solr/admin/authentication",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-type",
+							"value": "application/json",
+							"description": "",
+							"enabled": true
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "c939587c-76ea-412e-9352-9613cedd6eca",
+					"rawModeData": "{\r\n  \"set-user\": {\"tom_admin\" : \"TomIsCool\" ,\r\n               \"harry_reader\":\"HarrysSecret\"}}",
+					"headers": "Content-type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "d400d147-697a-4222-9900-42943cc8d876",
+					"name": "Add auth for admin and reader",
+					"url": "http://m1-datanexus03d:8983/solr/admin/authentication",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "c939587c-76ea-412e-9352-9613cedd6eca",
+					"rawModeData": "{\r\n  \"set-user\": {\"solr_admin\" : \"DataNexus_S0lr_Admin!\" ,\r\n               \"solr_reader\":\"DataNexus_S0lr_Reader!\"}}",
+					"headers": "",
+					"pathVariables": {}
+				},
+				{
+					"id": "eaab4afb-69d7-49ab-8b11-06789f18828f",
+					"name": "Block unknown",
+					"url": "http://localhost:8983/solr/admin/authentication",
+					"description": "",
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": null,
+					"events": [],
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "c939587c-76ea-412e-9352-9613cedd6eca",
+					"rawModeData": "{\r\n \"set-property\": {\"blockUnknown\":true}}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				}
+			]
+		},
+		{
+			"id": "e5822dc8-dfaf-43f7-a944-e3888e846aaa",
+			"name": "TEST Security",
+			"description": null,
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": ""
+					},
+					{
+						"key": "username",
+						"value": ""
+					}
+				]
+			},
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bacdf1a5-61a8-46e2-80da-aaa986545afd",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cdc4c931-56d0-45b7-b0c1-26a6271a3990",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"variables": null,
+			"order": [
+				"79c5ae41-44e0-445d-bf78-8fbe28ad073c",
+				"879cdc28-e87a-4482-a551-40566cba4d16",
+				"9f968664-88d4-45b5-af0f-9ef45faf1660",
+				"ac171c67-78c4-4ae8-ae6b-dd0fc9a66935"
+			],
+			"folders_order": [],
+			"folders": [],
+			"requests": [
+				{
+					"id": "79c5ae41-44e0-445d-bf78-8fbe28ad073c",
+					"name": "Block unknown Copy",
+					"url": "http://m1-datanexus03t:8983/solr/admin/authentication",
+					"description": null,
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": {
+						"type": "noauth"
+					},
+					"events": null,
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "e5822dc8-dfaf-43f7-a944-e3888e846aaa",
+					"rawModeData": "{\r\n \"set-property\": {\"blockUnknown\":true}}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "879cdc28-e87a-4482-a551-40566cba4d16",
+					"name": "Add auth for admin and reader Copy",
+					"url": "http://m1-datanexus03t:8983/solr/admin/authentication",
+					"description": null,
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": {
+						"type": "noauth"
+					},
+					"events": null,
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "e5822dc8-dfaf-43f7-a944-e3888e846aaa",
+					"rawModeData": "{\r\n  \"set-user\": {\"solr_admin\" : \"DataNexus_S0lr_Admin!\" ,\r\n               \"solr_reader\":\"DataNexus_S0lr_Reader!\"}}",
+					"headers": "",
+					"pathVariables": {}
+				},
+				{
+					"id": "9f968664-88d4-45b5-af0f-9ef45faf1660",
+					"name": "Set users to roles Copy",
+					"url": "http://m1-datanexus03t:8983/solr/admin/authorization",
+					"description": null,
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": {
+						"type": "noauth"
+					},
+					"events": null,
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "e5822dc8-dfaf-43f7-a944-e3888e846aaa",
+					"rawModeData": "{\r\n   \"set-user-role\" : {\"solr_admin\": [\"admin\",\"readonly\"],\r\n                      \"solr_reader\": \"readonly\"}\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				},
+				{
+					"id": "ac171c67-78c4-4ae8-ae6b-dd0fc9a66935",
+					"name": "Add permissions for admin Copy",
+					"url": "http://m1-datanexus03t:8983/solr/admin/authorization",
+					"description": null,
+					"data": [],
+					"dataMode": "raw",
+					"headerData": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"method": "POST",
+					"pathVariableData": [],
+					"queryParams": [],
+					"auth": {
+						"type": "noauth"
+					},
+					"events": null,
+					"folder": null,
+					"currentHelper": null,
+					"helperAttributes": null,
+					"collectionId": "e5822dc8-dfaf-43f7-a944-e3888e846aaa",
+					"rawModeData": "{\r\n  \"set-permission\": {\"name\": \"all\", \"role\":\"admin\"},\r\n  \"set-permission\": {\"name\": \"read\", \"role\":\"readonly\"},\r\n}",
+					"headers": "Content-Type: application/json\n",
+					"pathVariables": {}
+				}
+			]
+		}
+	],
+	"environments": [
+		{
+			"id": "dba5e123-a4f1-4806-afe1-fe2ea9a2e5bd",
+			"name": "DEV",
+			"values": [
+				{
+					"key": "host",
+					"value": "m1-datanexus03d",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "port",
+					"value": "8983",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "core",
+					"value": "DataNexus_2018_03_28",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "search_handler",
+					"value": "DataNexusSearch",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "qtime_max_ms",
+					"value": "1000",
+					"enabled": true,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"id": "64ea9884-c4a1-42d6-988e-d5410d9afe5e",
+			"name": "My FRB Workspace - globals",
+			"values": [
+				{
+					"key": "tester_num_found",
+					"value": "function tester_num_found(expected_num_found){\n    pm.test(`[${data.search}] Number of matches = ${expected_num_found} (Actual=${pm.response.json().response.numFound})`, function () {\n        console.log(`[${data.search}] NumFound = ${pm.response.json().response.numFound}`);\n        pm.expect(pm.response.json().response.numFound).to.equal(expected_num_found);\n    });\n}",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "tester_facet",
+					"value": "function tester_facet(facet_field, facet_value_expected, facet_value_count_expected) {\n    if (facet_value_expected === undefined || facet_value_expected === null || facet_value_expected === '') {\n        // Do not test if no expected facet value was provided\n        return;\n    }\n    \n    let facet_value_found = false;\n    let facet_value_count_found;\n    \n    let test_name = `[${data.search}] Facet ${facet_field} with value \"${facet_value_expected}\"`;\n    if (facet_value_count_expected !== undefined) {\n        test_name = `${test_name}  (${facet_value_count_expected})`;\n    }\n    \n    pm.test(test_name, function () {\n        let facet = pm.response.json().facet_counts.facet_fields[facet_field];\n        pm.expect(facet.length-1).to.be.above(2);\n        for (let i = 0; i < facet.length-1; i++){\n            //console.log(facet[i] + ':' + facet[i+1]);\n            if (facet[i] == facet_value_expected) {\n                facet_value_found = true;\n                facet_value_count_found = facet[i+1];\n                console.log(facet[i] + ':' + facet[i+1]);\n            }\n        }\n        \n        pm.expect(facet_value_found).to.equal(true);\n        \n        if (facet_value_count_expected !== undefined) {\n            pm.expect(facet_value_count_found).to.equal(facet_value_count_expected);\n        }\n    });\n}",
+					"enabled": true,
+					"type": "text"
+				},
+				{
+					"key": "tester_status",
+					"value": "// Test that the search succeeded.\npm.test(`[${data.search}] Status code is 200`, function () {\n    pm.response.to.have.status(200);\n});\n\n// Test the response time\nconst qtime_max_ms = Number(pm.environment.get('qtime_max_ms'));\nconsole.log(`qtime_max_ms=${qtime_max_ms} (type: ${typeof qtime_max_ms})`);\nconst response_time = Number(pm.response.json().responseHeader.QTime);\nconsole.log(`response_time=${response_time}  (type: ${typeof response_time})`);\n\npm.test(`[${data.search}] QTime <= ${qtime_max_ms} (Actual=${response_time})`, function () {\n    pm.expect(response_time).to.be.below(qtime_max_ms);\n});",
+					"enabled": true,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"headerPresets": [],
+	"globals": []
+}

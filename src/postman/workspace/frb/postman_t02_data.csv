@@ -1,0 +1,44 @@
+search,count,facet,facet_value
+automotive,10,RecordType_s,Acquired
+cds,50,RecordType_s,Acquired
+consumer,407,RecordType_s,Acquired
+derivatives,195,RecordType_s,Acquired
+insurance,423,RecordType_s,Acquired
+coin,13,RecordType_s,FRS Operational
+H.4.1,4,RecordType_s,FRS Operational
+mortgage,164,RecordType_s,Acquired
+moodys,21,RecordType_s,Acquired
+NAIC,13,RecordType_s,Acquired
+NAICS,17,RecordType_s,Acquired
+OPEC,1,RecordType_s,Acquired
+swaps,36,RecordType_s,Acquired
+CHIPS,1,RecordType_s,Collected
+liquidity,216,RecordType_s,Collected
+FBO,136,RecordType_s,Collected
+BHC,307,RecordType_s,Collected
+e1000289,3,RecordType_s,Acquired
+2314,3,RecordType_s,Collected
+Y-11,7,RecordType_s,Collected
+7100-0003,11,RecordType_s,Collected
+BHCF,4,RecordType_s,Collected
+FR Y-11,6,RecordType_s,Collected
+FR 2004,14,RecordType_s,Collected
+WRDS,27,RecordType_s,Collected
+Vehicle,26,RecordType_s,Acquired
+Petroleum,14,RecordType_s,Acquired
+mortgages,164,RecordType_s,Acquired
+Bloomberg,19,RecordType_s,Acquired
+BLS,26,RecordType_s,Acquired
+surveillance,178,RecordType_s,Collected
+labor,68,RecordType_s,Acquired
+kmv,3,RecordType_s,Acquired
+markit,26,RecordType_s,Acquired
+gdp,17,RecordType_s,Collected
+haver,6,RecordType_s,
+GSIB,0,RecordType_s,
+Payments,114,RecordType_s,
+Micro,13,RecordType_s,
+Macro,23,RecordType_s,
+risk,363,RecordType_s,
+loan,341,RecordType_s,
+index,93,RecordType_s,
